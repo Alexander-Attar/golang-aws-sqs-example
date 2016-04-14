@@ -1,38 +1,45 @@
 package main
 
 import (
+	"os"
 	"fmt"
-	"github.com/crowdmob/goamz/aws"
-	"github.com/crowdmob/goamz/sqs"
-	"golang-aws-sqs-example/worker"
 	"runtime"
 	"time"
+	"encoding/json"
+	"github.com/crowdmob/goamz/aws"
+	"github.com/crowdmob/goamz/sqs"
+	"github.com/Alexander-Attar/golang-aws-sqs-example/worker"
 )
 
-const (
-	accessKey = "A******************A"
-	secretKey = "/dF/R**********************************W"
-	queueName = "https://sqs.us-west-2.amazonaws.com/1**********7/job_queue"
-)
+	var accessKey string = os.Getenv("AWS_ACCESS_KEY_ID")
+	var secretKey string = os.Getenv("AWS_SECRET_ACCESS_KEY")
+	var queueName string = "https://sqs.us-east-1.amazonaws.com/168528444054/tubehunter-videosearch-prod"
 
 func Print(msg *sqs.Message) error {
-	//log.Println(msg.Body)
-	fmt.Println(fmt.Sprintf("Message ID : %v done!  Current goroutine num : %d  [%s]", msg.MessageId, runtime.NumGoroutine(), time.Now().Local()))
+
+	// Custom logic
+	var data map[string]interface{}
+    if err := json.Unmarshal([]byte(msg.Body), &data); err != nil {
+        panic(err)
+    }
+
+	fmt.Println(fmt.Sprintf("[%s] Message ID : %v - %s", time.Now().Local(), msg.MessageId, msg.Body ))
+
 	return nil
 }
 
 func main() {
-	sleepTime := time.Millisecond * 200 // 0.2 second
+	sleepTime := time.Millisecond * 1000 // 0.2 second
 	receiveMessageNum := 10
 	fmt.Println("===========================================")
 	fmt.Println(fmt.Sprintf(" Use CPU(s) num      : %d", runtime.NumCPU()))
 	fmt.Println(fmt.Sprintf(" Receive message num : %d", receiveMessageNum))
-	fmt.Println(fmt.Sprintf(" Sleep time          : 0.2 second(s)"))
+	fmt.Println(fmt.Sprintf(" Sleep time          : 1 second(s)"))
 	fmt.Println("===========================================")
 
 	runtime.GOMAXPROCS(runtime.NumCPU())
 	auth := aws.Auth{AccessKey: accessKey, SecretKey: secretKey}
-	mySqs := sqs.New(auth, aws.USWest2)
+	mySqs := sqs.New(auth, aws.USEast)
 	queue := &sqs.Queue{mySqs, queueName}
 	worker.Start(queue, worker.HandlerFunc(Print), sleepTime, receiveMessageNum)
 }

@@ -89,6 +89,6 @@ func handleMessage(q *sqs.Queue, m *sqs.Message, h Handler) error {
 		return err
 	}
 	// delete
-	_, err = q.DeleteMessage(m)
+	// _, err = q.DeleteMessage(m)
 	return err
 }
