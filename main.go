@@ -13,7 +13,7 @@ import (
 
 	var accessKey string = os.Getenv("AWS_ACCESS_KEY_ID")
 	var secretKey string = os.Getenv("AWS_SECRET_ACCESS_KEY")
-	var queueName string = "https://sqs.us-east-1.amazonaws.com/168528444054/tubehunter-videosearch-prod"
+	var queueName string = "https://sqs.us-east-1.amazonaws.com/168528444054/queue"
 
 func Print(msg *sqs.Message) error {
 
